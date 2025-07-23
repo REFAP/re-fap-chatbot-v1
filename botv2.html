@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot Re-FAP</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 20px; }
+    .chat-container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+    .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+    .user { background-color: #d0e8ff; text-align: right; }
+    .bot { background-color: #e1ffe1; }
+    input[type="text"] { width: 70%; padding: 10px; }
+    button { padding: 10px 20px; margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <div class="chat-container" id="chat">
+    <div class="message bot">Salut 👋 Dis-moi ton problème moteur, je t’écoute.</div>
+  </div>
+  <div style="text-align: center; margin-top: 20px;">
+    <input type="text" id="userInput" placeholder="Décris ton souci ici...">
+    <button onclick="sendMessage()">Envoyer</button>
+  </div>
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (!message) return;
+      const chat = document.getElementById("chat");
+
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.textContent = message;
+      chat.appendChild(userMsg);
+      input.value = "";
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const data = await response.json();
+
+      const botMsg = document.createElement("div");
+      botMsg.className = "message bot";
+      botMsg.textContent = data.reply || "Erreur : " + (data.error || "Réponse invalide.");
+      chat.appendChild(botMsg);
+    }
+  </script>
+</body>
+</html>
